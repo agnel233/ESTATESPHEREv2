@@ -1,0 +1,1190 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EstateSphere | Administrative Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-darker: #080E1A;
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --primary: #1E293B;
+            --accent: #D4AF37;
+            --accent-hover: #C59B27;
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --success: #10B981;
+            --danger: #EF4444;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-darker);
+            color: var(--text-light);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-darker); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* AUTH SCREEN */
+        #auth-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, var(--bg-dark), var(--bg-darker));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), #F3E5AB);
+            color: var(--bg-darker);
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+        }
+
+        .auth-card h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 8px; color: var(--text-light); }
+        .auth-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 30px; }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label {
+            display: block; font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%; background-color: var(--bg-dark);
+            border: 1px solid var(--border); color: var(--text-light);
+            padding: 12px 16px; font-family: inherit; font-size: 0.9rem;
+            border-radius: var(--radius); outline: none; transition: var(--transition);
+        }
+        .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 24px; font-family: inherit; font-size: 0.85rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px; border-radius: var(--radius);
+            border: none; cursor: pointer; transition: var(--transition);
+        }
+        .btn-primary { background-color: var(--accent); color: var(--bg-darker); }
+        .btn-primary:hover { background-color: var(--accent-hover); transform: translateY(-1px); }
+        .btn-secondary { background-color: var(--border); color: var(--text-light); }
+        .btn-secondary:hover { background-color: #475569; }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover { background-color: #DC2626; }
+
+        /* PANEL INTERFACE */
+        #admin-panel {
+            display: none;
+            min-height: 100vh;
+            grid-template-columns: 260px 1fr;
+        }
+
+        @media (max-width: 992px) {
+            #admin-panel { grid-template-columns: 1fr; }
+        }
+
+        aside {
+            background-color: var(--bg-dark);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            justify-content: space-between; padding: 30px 20px;
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .brand-text { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--text-light); }
+        .brand-text span { color: var(--accent); }
+
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .nav-item button {
+            width: 100%; background: none; border: none; color: var(--text-muted);
+            padding: 12px 16px; text-align: left; font-family: inherit; font-size: 0.9rem;
+            font-weight: 600; border-radius: var(--radius); cursor: pointer;
+            display: flex; align-items: center; gap: 12px; transition: var(--transition);
+        }
+        .nav-item button:hover, .nav-item.active button { color: var(--accent); background-color: rgba(255, 255, 255, 0.03); }
+        .nav-item.active button { background-color: rgba(212, 175, 55, 0.08); border-left: 3px solid var(--accent); }
+
+        .aside-footer { border-top: 1px solid var(--border); padding-top: 20px; }
+
+        main { background-color: var(--bg-darker); padding: 40px; overflow-y: auto; }
+        @media (max-width: 576px) { main { padding: 20px; } }
+
+        .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 16px; }
+        .view-header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text-light); }
+
+        /* METRICS */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        .metric-card {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 24px; display: flex; align-items: center; gap: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .metric-icon {
+            width: 54px; height: 54px; background-color: rgba(212, 175, 55, 0.1);
+            color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+        }
+        .metric-details span { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+        .metric-details strong { font-size: 1.8rem; font-weight: 700; color: var(--text-light); }
+
+        .tab-view { display: none; animation: viewFadeIn 0.3s ease-out forwards; }
+        .tab-view.active { display: block; }
+
+        @keyframes viewFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TABLES */
+        .table-responsive { width: 100%; overflow-x: auto; background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        th { background-color: rgba(0, 0, 0, 0.15); font-weight: 700; text-transform: uppercase; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.5px; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+
+        .status-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .status-badge.active { background-color: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .status-badge.pending { background-color: rgba(212, 175, 55, 0.15); color: var(--accent); }
+        .status-badge.sold { background-color: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        .btn-icon { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 6px; border-radius: 4px; transition: var(--transition); }
+        .btn-icon:hover { color: var(--accent); background-color: rgba(255,255,255,0.05); }
+        .btn-icon.delete-btn:hover { color: var(--danger); }
+
+        /* MODAL */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(8, 14, 26, 0.85); backdrop-filter: blur(8px);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+            padding: 20px; overflow-y: auto;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; width: 100%; max-width: 700px; padding: 36px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative;
+            animation: modalSlide 0.25s ease-out forwards; max-height: 90vh; overflow-y: auto;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal { position: absolute; top: 24px; right: 24px; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; transition: var(--transition); }
+        .close-modal:hover { color: var(--accent); }
+
+        .modal-content h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 576px) { .form-grid { grid-template-columns: 1fr; } }
+        .form-full { grid-column: span 2; }
+        @media (max-width: 576px) { .form-full { grid-column: span 1; } }
+
+        /* MULTI-UPLOAD */
+        .upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 30px; text-align: center; cursor: pointer; transition: var(--transition); background-color: rgba(0,0,0,0.1); }
+        .upload-area:hover { border-color: var(--accent); background-color: rgba(212,175,55,0.02); }
+        .upload-area i { color: var(--accent); font-size: 2rem; margin-bottom: 12px; }
+
+        .image-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 12px; margin-top: 15px; }
+        .preview-img-container { position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+        .preview-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .remove-preview-btn { position: absolute; top: 2px; right: 2px; background-color: rgba(239, 68, 68, 0.85); color: white; border: none; width: 18px; height: 18px; border-radius: 50%; font-size: 0.65rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        .media-manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+        .media-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; position: relative; aspect-ratio: 1; }
+        .media-card img { width: 100%; height: 100%; object-fit: cover; }
+        .media-actions { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(8, 14, 26, 0.85); display: flex; align-items: center; justify-content: center; gap: 10px; opacity: 0; transition: var(--transition); }
+        .media-card:hover .media-actions { opacity: 1; }
+
+        /* TOAST ALERT */
+        #toast {
+            position: fixed; bottom: 30px; right: 30px;
+            background-color: var(--bg-card); color: var(--accent);
+            padding: 16px 24px; border-radius: var(--radius);
+            border: 1px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 9999; font-weight: 600; font-size: 0.9rem;
+            display: none; animation: slideIn 0.3s ease-out forwards;
+        }
+        #toast.active { display: block; }
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast"></div>
+
+    <!-- AUTH BARRIER -->
+    <section id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-logo">E</div>
+            <h2>EstateSphere Panel</h2>
+            <p>Access requires valid credentials</p>
+            <form onsubmit="handleAuthSubmit(event)">
+                <div class="form-group">
+                    <label>Admin Username</label>
+                    <input type="text" id="auth-user" class="form-control" placeholder="Enter administrative username" required autocomplete="username">
+                </div>
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label>Security Password</label>
+                    <input type="password" id="auth-pass" class="form-control" placeholder="Enter dynamic passphrase" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fa-solid fa-shield-halved"></i> Access Portal
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- CORE ADMIN WORKSPACE -->
+    <section id="admin-panel">
+        <aside>
+            <div>
+                <div class="brand">
+                    <div class="auth-logo" style="width: 36px; height: 36px; font-size: 1.1rem; margin: 0;">E</div>
+                    <div class="brand-text">Estate<span>Sphere</span></div>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item active" onclick="switchTab('overview', this)">
+                        <button><i class="fa-solid fa-chart-line"></i> Overview</button>
+                    </li>
+                    <li class="nav-item" onclick="switchTab('properties', this)">
+                        <button><i class="fa-solid fa-house-chimney"></i> Properties</button>
+                    </li>
+                    <li class="nav-item" onclick="switchTab('leads', this)">
+                        <button><i class="fa-solid fa-envelope-open-text"></i> Enquiries Inbox</button>
+                    </li>
+                    <li class="nav-item" onclick="switchTab('media', this)">
+                        <button><i class="fa-solid fa-images"></i> Media Vault</button>
+                    </li>
+                    <li class="nav-item" onclick="switchTab('portal', this)">
+                        <button><i class="fa-solid fa-sliders"></i> Portal Settings</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="aside-footer">
+                <button class="btn btn-secondary" onclick="handleLogout()" style="width: 100%;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Exit Session
+                </button>
+            </div>
+        </aside>
+
+        <main>
+            <!-- TAB 1: OVERVIEW METRICS -->
+            <div id="view-overview" class="tab-view active">
+                <div class="view-header">
+                    <h1>System Dashboard</h1>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-house"></i></div>
+                        <div class="metric-details">
+                            <span>Total Listings</span>
+                            <strong id="metric-total-listings">0</strong>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-user-tag"></i></div>
+                        <div class="metric-details">
+                            <span>Active Leads</span>
+                            <strong id="metric-active-leads">0</strong>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-photo-film"></i></div>
+                        <div class="metric-details">
+                            <span>Media Assets</span>
+                            <strong id="metric-media-assets">0</strong>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-server"></i></div>
+                        <div class="metric-details">
+                            <span>Sitemap Status</span>
+                            <strong style="color: var(--success); font-size: 1.4rem;">ONLINE</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 30px;">
+                    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 12px;"><i class="fa-solid fa-circle-nodes" style="color: var(--accent);"></i> Connected Database Pipeline</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        This administrative core runs in direct synchronization with your visitor webpage. Any property listing records created, modified, or permanently deleted inside this viewport will immediately update in your visitor space when run on the same shared host.
+                    </p>
+                </div>
+            </div>
+
+            <!-- TAB 2: PROPERTIES INVENTORY -->
+            <div id="view-properties" class="tab-view">
+                <div class="view-header">
+                    <h1>Properties Inventory</h1>
+                    <button class="btn btn-primary" onclick="openPropertyFormModal()"><i class="fa-solid fa-plus"></i> Add New Listing</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Thumbnail</th>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Format</th>
+                                <th>Price (INR)</th>
+                                <th>Offer</th>
+                                <th>Featured</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="properties-table-body">
+                            <!-- Rows injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: LEADS INBOX -->
+            <div id="view-leads" class="tab-view">
+                <div class="view-header">
+                    <h1>Enquiries Inbox</h1>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Contact Profile</th>
+                                <th>Linked Asset</th>
+                                <th>Special Message</th>
+                                <th>Response Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leads-table-body">
+                            <!-- Rows injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: MEDIA MANAGER -->
+            <div id="view-media" class="tab-view">
+                <div class="view-header">
+                    <h1>Media Vault</h1>
+                    <div style="position: relative;">
+                        <button class="btn btn-primary" onclick="document.getElementById('vault-uploader-input').click()">
+                            <i class="fa-solid fa-upload"></i> Upload Media File
+                        </button>
+                        <input type="file" id="vault-uploader-input" style="display:none;" multiple accept="image/*" onchange="uploadToMediaVault(event)">
+                    </div>
+                </div>
+
+                <div class="media-manager-grid" id="media-manager-grid">
+                    <!-- Images injected dynamically -->
+                </div>
+            </div>
+
+            <!-- TAB 5: PORTAL SETTINGS -->
+            <div id="view-portal" class="tab-view">
+                <div class="view-header">
+                    <h1>Portal Settings</h1>
+                </div>
+
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 40px; max-width: 750px;">
+                    <form onsubmit="savePortalSettings(event)">
+                        <div class="form-group">
+                            <label>Portal Advisory Headline</label>
+                            <input type="text" id="config-headline" class="form-control" value="Connecting premium buyers and high-tier property stakeholders.">
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Central Support Hotline</label>
+                                <input type="text" id="config-hotline" class="form-control" value="8097484393">
+                            </div>
+                            <div class="form-group">
+                                <label>Corporate Support Email</label>
+                                <input type="email" id="config-email" class="form-control" value="concierge@estatesphere.co.in">
+                            </div>
+                            <div class="form-group form-full">
+                                <label>Headquarters Location Address</label>
+                                <input type="text" id="config-address" class="form-control" value="EstateSphere Chambers, College Road, Madikeri, Coorg - 571201, Karnataka, India">
+                            </div>
+                        </div>
+                        <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 24px;">
+                            <button type="submit" class="btn btn-primary">Commit Portal Parameters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- PROPERTY CREATOR & EDITOR MODAL -->
+    <div class="modal" id="property-modal" onclick="if(event.target === this) closePropertyModal()">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closePropertyModal()">&times;</button>
+            <h3 id="modal-title-text">Configure Property Record</h3>
+            <form id="property-editor-form" onsubmit="savePropertyRecord(event)">
+                <input type="hidden" id="edit-property-id">
+                <div class="form-grid">
+                    <div class="form-group form-full">
+                        <label>Property Listing Title *</label>
+                        <input type="text" id="prop-title" class="form-control" placeholder="e.g. Royal Pepper & Coffee Plantation, Madikeri" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Property Format *</label>
+                        <select id="prop-type" class="form-control" required>
+                            <option value="Coffee Estates">Coffee Estates / Coorg Estates</option>
+                            <option value="Apartments">Apartments</option>
+                            <option value="Villas">Villas</option>
+                            <option value="Independent Houses">Independent Houses</option>
+                            <option value="Commercial Properties">Commercial Properties</option>
+                            <option value="Land & Plots">Land & Plots</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Offer Intent *</label>
+                        <select id="prop-intent" class="form-control" required>
+                            <option value="buy">For Sale (Buy)</option>
+                            <option value="rent">Rent</option>
+                            <option value="lease">Lease</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Financial Valuation Price (INR) *</label>
+                        <input type="number" id="prop-price" class="form-control" placeholder="Total value in Rupees" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Spatial Area Size *</label>
+                        <input type="text" id="prop-area" class="form-control" placeholder="e.g. 15 Acres or 4,500 sq.ft" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Beds / Config Options</label>
+                        <input type="text" id="prop-beds" class="form-control" placeholder="e.g. 4 BHK">
+                    </div>
+                    <div class="form-group">
+                        <label>Listing Status</label>
+                        <select id="prop-status" class="form-control">
+                            <option value="active">Active</option>
+                            <option value="pending">Pending Audit</option>
+                            <option value="sold">Sold</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Physical Address Locality *</label>
+                        <input type="text" id="prop-location" class="form-control" placeholder="e.g. Siddapur, Coorg" required>
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Property Overview Description *</label>
+                        <textarea id="prop-description" class="form-control" rows="4" placeholder="Detailed property overview..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group form-full">
+                        <label>Asset Images (Base64 file uploader or URL fallback)</label>
+                        <div class="upload-area" onclick="document.getElementById('file-upload-input').click()">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">Click to Select Local Images</p>
+                            <p style="color: var(--text-muted); font-size: 0.75rem;">Support multi-selection configurations</p>
+                        </div>
+                        <input type="file" id="file-upload-input" style="display: none;" multiple accept="image/*" onchange="processLocalUploadPreviews(event)">
+                        
+                        <div class="image-preview-grid" id="image-preview-grid-wrapper">
+                            <!-- Previews injected dynamically -->
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <label style="font-size: 0.7rem; color: var(--text-muted);">External Backup URLs (Comma Separated)</label>
+                            <input type="text" id="prop-image-urls" class="form-control" placeholder="https://image1.com, https://image2.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; border-top: 1px solid var(--border); padding-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closePropertyModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Listing</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD ENGINE LOGIC -->
+    <script>
+        // Fallback properties database structure containing 10 in Coorg and 1 in Bangalore
+        const defaultProperties = [
+            {
+                id: 1,
+                title: "Premium Arabica Coffee Estate",
+                location: "Somwarpet, Coorg",
+                region: "Somwarpet",
+                price: 45000000, 
+                type: "Coffee Estates",
+                intent: "buy",
+                area: "12 Acres",
+                beds: "3 BHK Heritage Bungalow included",
+                featured: true,
+                image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+                description: "This organic estate is located in Coorg's premium high coffee zone. It includes Arabica crop lines interlocked with premium black pepper vines, gravitational natural water springs, and a classic heritage bungalow.",
+                amenities: ["Private Water Spring", "Pepper Vines Intercropped", "Heritage Bungalow", "Staff Quarters", "Drying Yards"],
+                status: "active"
+            },
+            {
+                id: 2,
+                title: "Misty Valleys Luxury Villa",
+                location: "Madikeri, Coorg",
+                region: "Madikeri",
+                price: 180000, 
+                type: "Villas",
+                intent: "rent",
+                area: "4,500 sqft",
+                beds: "4 Bedrooms",
+                featured: true,
+                image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80",
+                description: "Perched gracefully along an elevated ridge, this private luxury home hosts 270-degree panorama views of mountain valleys. Equipped with thermal glass panels, infinity pool, and custom furnishings.",
+                amenities: ["Heated Infinity Pool", "Panoramic Valley Views", "Fully Furnished", "24/7 Power Backup", "Dedicated Estate Guard"],
+                status: "active"
+            },
+            {
+                id: 3,
+                title: "Silver Oak pepper & Robusta Estate",
+                location: "Siddapur, Coorg",
+                region: "Siddapur",
+                price: 82000000,
+                type: "Coffee Estates",
+                intent: "buy",
+                area: "25 Acres",
+                beds: "Heritage wooden chalet",
+                featured: true,
+                image: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80",
+                description: "An exceptionally high-yielding Robusta coffee plantation containing fully mature silver oak structures, pepper vines, and modern drip irrigation pipes with access to a reliable regional stream.",
+                amenities: ["Stream Access", "Silver Oak Timber", "Drip Irrigation", "Fenced Boundaries", "Pepper Cultivation"],
+                status: "active"
+            },
+            {
+                id: 4,
+                title: "Colonial Heritage Bungalow & Cardamom Land",
+                location: "Pollibetta, Coorg",
+                region: "Coorg",
+                price: 35000000,
+                type: "Villas",
+                intent: "buy",
+                area: "3.5 Acres",
+                beds: "4 BHK Historic Layout",
+                featured: true,
+                image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80",
+                description: "Historic colonial-style brick architecture situated amidst fully shaded cardamom gardens. Beautiful stone chimneys, Burma teak structures, and complete road connectivity.",
+                amenities: ["Burma Teak Woodwork", "Stone Chimney", "Shaded Cardamom Hills", "Paved Driveway", "Separate Maid Quarters"],
+                status: "active"
+            },
+            {
+                id: 5,
+                title: "Kaveri Riverfront Wilderness Cabin",
+                location: "Kushalnagar, Coorg",
+                region: "Kushalnagar",
+                price: 6000000,
+                type: "Independent Houses",
+                intent: "buy",
+                area: "1.2 Acres",
+                beds: "2 BHK Contemporary Cabin",
+                featured: true,
+                image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80",
+                description: "A cozy riverside wood cabin positioned along quiet sections of the Kaveri River. Ideal for nature enthusiasts or weekend getaways with clean utility connections.",
+                amenities: ["Riverfront View", "Timber Decking", "Solar Microgrid Setup", "Fruit Orchards", "Gated Security Entry"],
+                status: "active"
+            },
+            {
+                id: 6,
+                title: "Pepperwood Ridge Plots",
+                location: "Virajpet, Coorg",
+                region: "Virajpet",
+                price: 9500000,
+                type: "Land & Plots",
+                intent: "buy",
+                area: "2.5 Acres",
+                beds: "Residential Approved Plot",
+                featured: false,
+                image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+                description: "An elevated premium residential layout site overlooking the mountains of Virajpet. Excellent high-altitude climate, perfect for private resort conversion or custom luxury villa setup.",
+                amenities: ["Clear Legal Title", "Wide Tar Road Access", "Electricity Grid Connected", "Panoramic Hill View"],
+                status: "active"
+            },
+            {
+                id: 7,
+                title: "Golden Rice Fields Agro-Farm",
+                location: "Ponnampet, Coorg",
+                region: "Coorg",
+                price: 18000000,
+                type: "Land & Plots",
+                intent: "buy",
+                area: "15 Acres",
+                beds: "Agri Crop Farm Land",
+                featured: false,
+                image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80",
+                description: "Traditional fertile agricultural wetland coupled with robust vegetable crop fields. Includes a dedicated well-water pumping station, open utility shed, and concrete fence pillars.",
+                amenities: ["Dedicated Open Well", "Water Pump Shed", "Complete Flat Topography", "Paddy Fields"],
+                status: "active"
+            },
+            {
+                id: 8,
+                title: "Cloud Nine Estate Cottage",
+                location: "Chettalli, Coorg",
+                region: "Coorg",
+                price: 55000,
+                type: "Independent Houses",
+                intent: "rent",
+                area: "1,800 sqft",
+                beds: "2 BHK Mountain Cabin",
+                featured: false,
+                image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80",
+                description: "A private mountain-side cottage situated within an active cardamom farm block. Experience persistent seasonal mist, cool winds, and cozy stone-clad fireplace architecture.",
+                amenities: ["Stone Fireplace", "Cardamom Garden Access", "Fully Furnished Kitchen", "High-speed Internet"],
+                status: "active"
+            },
+            {
+                id: 9,
+                title: "Highlands Homestay Resort",
+                location: "Gonikoppal, Coorg",
+                region: "Coorg",
+                price: 42000000,
+                type: "Commercial Properties",
+                intent: "buy",
+                area: "6 Acres",
+                beds: "8 Guest Rooms & Lounge",
+                featured: true,
+                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+                description: "Fully licensed premium plantation resort operational. Features separate cottages, centralized guest dining hall, activity fields, and outstanding travel reviews.",
+                amenities: ["Commercial License", "Central Dining Hall", "Activity Lawns", "Staff Quarters", "Ample Parking Space"],
+                status: "active"
+            },
+            {
+                id: 10,
+                title: "Wild Cardamom Valley Eco-Lodge",
+                location: "Kutta, Coorg",
+                region: "Coorg",
+                price: 250000,
+                type: "Commercial Properties",
+                intent: "lease",
+                area: "8 Acres",
+                beds: "Eco Cabins Setup",
+                featured: false,
+                image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80",
+                description: "An eco-retreat styled resort available for long-term lease. Located in direct proximity to popular local wildlife reserves, containing pristine streams and natural wooden bridges.",
+                amenities: ["Forest Boundary View", "Fresh Stream Paths", "Solar Water Heating", "Lounge Deck"],
+                status: "active"
+            },
+            {
+                id: 11,
+                title: "The Heights Modern Sky-Penthouse",
+                location: "Hebbal, Bangalore",
+                region: "Bangalore",
+                price: 32000000, 
+                type: "Apartments",
+                intent: "buy",
+                area: "3,200 sqft",
+                beds: "3 Bedrooms",
+                featured: true,
+                image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+                description: "Spacious contemporary design at the top of Bangalore's notable luxury towers. Features structural imported marble, German security systems, and private lakeview terraces.",
+                amenities: ["Rooftop Sky deck", "Private Elevators", "Clubhouse Access", "Fully Air Conditioned", "24/7 Security"],
+                status: "active"
+            }
+        ];
+
+        let uploadedFileStrings = []; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initStorageSystem();
+            checkSessionAuth();
+        });
+
+        function checkSessionAuth() {
+            if (sessionStorage.getItem('admin_session_auth') === 'true') {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'grid';
+                showToast("Authorized session restored.");
+                loadAllDynamicRecords();
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('admin-panel').style.display = 'none';
+            }
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            const user = document.getElementById('auth-user').value;
+            const pass = document.getElementById('auth-pass').value;
+
+            if (user === 'notyourbus' && pass === 'manbanmak2013') {
+                sessionStorage.setItem('admin_session_auth', 'true');
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'grid';
+                showToast("Welcome! Administration portal online.");
+                loadAllDynamicRecords();
+            } else {
+                showToast("Security Refusal: Credentials validation error.");
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('admin_session_auth');
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('admin-panel').style.display = 'none';
+            showToast("Session security terminated.");
+        }
+
+        function initStorageSystem() {
+            if (!localStorage.getItem('es_properties')) {
+                localStorage.setItem('es_properties', JSON.stringify(defaultProperties));
+            }
+            if (!localStorage.getItem('es_portal_enquiries')) {
+                localStorage.setItem('es_portal_enquiries', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('es_vault_images')) {
+                const initialVault = [
+                    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
+                ];
+                localStorage.setItem('es_vault_images', JSON.stringify(initialVault));
+            }
+        }
+
+        function getProperties() { return JSON.parse(localStorage.getItem('es_properties')); }
+        function saveProperties(arr) { localStorage.setItem('es_properties', JSON.stringify(arr)); }
+        function getEnquiries() { return JSON.parse(localStorage.getItem('es_portal_enquiries')); }
+        function saveEnquiries(arr) { localStorage.setItem('es_portal_enquiries', JSON.stringify(arr)); }
+        function getMediaVault() { return JSON.parse(localStorage.getItem('es_vault_images')); }
+        function saveMediaVault(arr) { localStorage.setItem('es_vault_images', JSON.stringify(arr)); }
+
+        function loadAllDynamicRecords() {
+            renderMetrics();
+            renderPropertiesTable();
+            renderLeadsTable();
+            renderMediaVaultGrid();
+        }
+
+        function renderMetrics() {
+            const props = getProperties();
+            const leads = getEnquiries();
+            const media = getMediaVault();
+
+            document.getElementById('metric-total-listings').textContent = props.length;
+            document.getElementById('metric-active-leads').textContent = leads.filter(l => l.status !== 'replied').length;
+            document.getElementById('metric-media-assets').textContent = media.length;
+        }
+
+        function formatINR(number) {
+            if (number >= 10000000) {
+                const cr = number / 10000000;
+                return "₹" + (cr % 1 === 0 ? cr : cr.toFixed(2)) + " Cr";
+            } else if (number >= 100000) {
+                const lac = number / 100000;
+                return "₹" + (lac % 1 === 0 ? lac : lac.toFixed(2)) + " Lac";
+            }
+            return "₹" + Number(number).toLocaleString('en-IN');
+        }
+
+        function getPropertyImage(p) {
+            if (p.images && p.images.length > 0) return p.images[0];
+            if (p.image) return p.image;
+            return "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=150&q=80";
+        }
+
+        function renderPropertiesTable() {
+            const props = getProperties();
+            const tbody = document.getElementById('properties-table-body');
+            tbody.innerHTML = '';
+
+            if (props.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted);">No property listings present in the database.</td></tr>`;
+                return;
+            }
+
+            props.forEach(p => {
+                const thumb = getPropertyImage(p);
+                const formattedPrice = formatINR(p.price) + (p.intent === 'rent' ? '/mo' : p.intent === 'lease' ? '/yr' : '');
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><img src="${thumb}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);"></td>
+                        <td><strong>${escapeHTML(p.title)}</strong></td>
+                        <td>${escapeHTML(p.location)}</td>
+                        <td><span style="color: var(--accent); font-weight: 600;">${escapeHTML(p.type)}</span></td>
+                        <td>${formattedPrice}</td>
+                        <td style="text-transform: uppercase; font-size: 0.75rem; font-weight: 700;">${escapeHTML(p.intent)}</td>
+                        <td>
+                            <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeaturedState(${p.id}, this.checked)">
+                        </td>
+                        <td>
+                            <span class="status-badge ${p.status || 'active'}">${p.status || 'active'}</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn-icon" onclick="openPropertyFormModal(${p.id})" title="Edit listing"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-icon delete-btn" onclick="deletePropertyEntry(${p.id})" title="Delete listing"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderLeadsTable() {
+            const leads = getEnquiries();
+            const tbody = document.getElementById('leads-table-body');
+            tbody.innerHTML = '';
+
+            if (leads.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Inbox is empty.</td></tr>`;
+                return;
+            }
+
+            leads.forEach(l => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="white-space: nowrap; font-size: 0.8rem; color: var(--text-muted);">${l.timestamp || 'N/A'}</td>
+                        <td>
+                            <strong>${escapeHTML(l.name)}</strong><br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(l.phone)}</span><br>
+                            <span style="font-size: 0.8rem; color: var(--accent);">${escapeHTML(l.email)}</span>
+                        </td>
+                        <td>
+                            <span style="font-size:0.75rem; color: var(--text-muted); font-weight:700;">${l.propertyId}</span><br>
+                            <strong>${escapeHTML(l.propertyTitle)}</strong>
+                        </td>
+                        <td><p style="max-width: 250px; font-size: 0.8rem;">${escapeHTML(l.message)}</p></td>
+                        <td>
+                            <span class="status-badge ${l.status === 'replied' ? 'active' : 'pending'}">
+                                ${l.status === 'replied' ? 'replied' : 'unread'}
+                            </span>
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            ${l.status !== 'replied' ? `<button class="btn-icon" onclick="markLeadAsReplied(${l.id})" title="Mark replied"><i class="fa-solid fa-square-check" style="color: var(--success);"></i></button>` : ''}
+                            <button class="btn-icon delete-btn" onclick="deleteLeadEntry(${l.id})" title="Clear lead entry"><i class="fa-solid fa-circle-xmark"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderMediaVaultGrid() {
+            const vault = getMediaVault();
+            const grid = document.getElementById('media-manager-grid');
+            grid.innerHTML = '';
+
+            vault.forEach((src, idx) => {
+                grid.innerHTML += `
+                    <div class="media-card">
+                        <img src="${src}">
+                        <div class="media-actions">
+                            <button class="btn btn-secondary btn-icon" onclick="copyAssetLink('${src}')" title="Copy Address Link"><i class="fa-solid fa-link"></i></button>
+                            <button class="btn btn-danger btn-icon" onclick="deleteMediaAsset(${idx})" title="Purge Asset"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openPropertyFormModal(id = null) {
+            document.getElementById('property-editor-form').reset();
+            document.getElementById('image-preview-grid-wrapper').innerHTML = '';
+            uploadedFileStrings = [];
+
+            if (id) {
+                document.getElementById('modal-title-text').textContent = "Configure Listing Record";
+                const props = getProperties();
+                const p = props.find(item => item.id === id);
+                if (!p) return;
+
+                document.getElementById('edit-property-id').value = p.id;
+                document.getElementById('prop-title').value = p.title;
+                document.getElementById('prop-type').value = p.type;
+                document.getElementById('prop-intent').value = p.intent;
+                document.getElementById('prop-price').value = p.price;
+                document.getElementById('prop-area').value = p.area;
+                document.getElementById('prop-beds').value = p.beds || '';
+                document.getElementById('prop-status').value = p.status || 'active';
+                document.getElementById('prop-location').value = p.location;
+                document.getElementById('prop-description').value = p.description;
+
+                let imgUrlsArray = [];
+                if (p.images && Array.isArray(p.images)) {
+                    p.images.forEach(img => {
+                        if (img.startsWith('data:image')) {
+                            uploadedFileStrings.push(img);
+                        } else {
+                            imgUrlsArray.push(img);
+                        }
+                    });
+                } else if (p.image && !p.image.startsWith('data:image')) {
+                    imgUrlsArray.push(p.image);
+                }
+
+                document.getElementById('prop-image-urls').value = imgUrlsArray.join(', ');
+                updateLocalPreviewsDisplay();
+            } else {
+                document.getElementById('modal-title-text').textContent = "Add Custom Listing Asset";
+                document.getElementById('edit-property-id').value = '';
+            }
+
+            document.getElementById('property-modal').classList.add('active');
+        }
+
+        function closePropertyModal() { document.getElementById('property-modal').classList.remove('active'); }
+
+        function processLocalUploadPreviews(event) {
+            const files = event.target.files;
+            if (!files) return;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedFileStrings.push(e.target.result);
+                    updateLocalPreviewsDisplay();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeSelectedLocalPreview(idx) {
+            uploadedFileStrings.splice(idx, 1);
+            updateLocalPreviewsDisplay();
+        }
+
+        function updateLocalPreviewsDisplay() {
+            const wrapper = document.getElementById('image-preview-grid-wrapper');
+            wrapper.innerHTML = '';
+            uploadedFileStrings.forEach((base64, idx) => {
+                wrapper.innerHTML += `
+                    <div class="preview-img-container">
+                        <img src="${base64}">
+                        <button type="button" class="remove-preview-btn" onclick="removeSelectedLocalPreview(${idx})">&times;</button>
+                    </div>
+                `;
+            });
+        }
+
+        function savePropertyRecord(event) {
+            event.preventDefault();
+            const props = getProperties();
+
+            const id = document.getElementById('edit-property-id').value;
+            const title = document.getElementById('prop-title').value;
+            const type = document.getElementById('prop-type').value;
+            const intent = document.getElementById('prop-intent').value;
+            const price = parseFloat(document.getElementById('prop-price').value);
+            const area = document.getElementById('prop-area').value;
+            const beds = document.getElementById('prop-beds').value || 'N/A';
+            const status = document.getElementById('prop-status').value;
+            const location = document.getElementById('prop-location').value;
+            const description = document.getElementById('prop-description').value;
+
+            const backupUrlString = document.getElementById('prop-image-urls').value;
+            const backupUrls = backupUrlString.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            const combinedImages = [...uploadedFileStrings, ...backupUrls];
+
+            if (combinedImages.length === 0) {
+                combinedImages.push("https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80");
+            }
+
+            if (id) {
+                const idx = props.findIndex(item => String(item.id) === String(id));
+                if (idx !== -1) {
+                    props[idx].title = title;
+                    props[idx].type = type;
+                    props[idx].intent = intent;
+                    props[idx].price = price;
+                    props[idx].area = area;
+                    props[idx].beds = beds;
+                    props[idx].status = status;
+                    props[idx].location = location;
+                    props[idx].description = description;
+                    props[idx].images = combinedImages;
+                    props[idx].image = combinedImages[0];
+                }
+                showToast("Property listing configured.");
+            } else {
+                const newObj = {
+                    id: Date.now(),
+                    title: title,
+                    type: type,
+                    intent: intent,
+                    price: price,
+                    area: area,
+                    beds: beds,
+                    status: status,
+                    location: location,
+                    region: location.split(',')[0].trim(),
+                    description: description,
+                    images: combinedImages,
+                    image: combinedImages[0],
+                    featured: true,
+                    amenities: ["Verified Land Title", "Access to Water", "Modern Road Entrance"]
+                };
+                props.unshift(newObj);
+                showToast("Listing created.");
+            }
+
+            saveProperties(props);
+            closePropertyModal();
+            loadAllDynamicRecords();
+        }
+
+        function deletePropertyEntry(id) {
+            if (confirm("Are you sure you want to permanently delete this listing?")) {
+                let props = getProperties();
+                props = props.filter(item => item.id !== id);
+                saveProperties(props);
+                showToast("Listing deleted successfully.");
+                loadAllDynamicRecords();
+            }
+        }
+
+        function toggleFeaturedState(id, isChecked) {
+            const props = getProperties();
+            const idx = props.findIndex(item => item.id === id);
+            if (idx !== -1) {
+                props[idx].featured = isChecked;
+                saveProperties(props);
+                showToast("Featured status changed.");
+                loadAllDynamicRecords();
+            }
+        }
+
+        function markLeadAsReplied(id) {
+            const leads = getEnquiries();
+            const idx = leads.findIndex(item => item.id === id);
+            if (idx !== -1) {
+                leads[idx].status = "replied";
+                saveEnquiries(leads);
+                showToast("Enquiry marked replied.");
+                loadAllDynamicRecords();
+            }
+        }
+
+        function deleteLeadEntry(id) {
+            if (confirm("Clear this lead entry?")) {
+                let leads = getEnquiries();
+                leads = leads.filter(item => item.id !== id);
+                saveEnquiries(leads);
+                showToast("Lead entry removed.");
+                loadAllDynamicRecords();
+            }
+        }
+
+        function uploadToMediaVault(event) {
+            const files = event.target.files;
+            if (!files) return;
+
+            const vault = getMediaVault();
+            let loadedCount = 0;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    vault.unshift(e.target.result);
+                    loadedCount++;
+                    if (loadedCount === files.length) {
+                        saveMediaVault(vault);
+                        showToast(`${loadedCount} asset files saved.`);
+                        loadAllDynamicRecords();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function deleteMediaAsset(idx) {
+            if (confirm("Do you want to clear this media asset?")) {
+                const vault = getMediaVault();
+                vault.splice(idx, 1);
+                saveMediaVault(vault);
+                showToast("Media asset purged.");
+                loadAllDynamicRecords();
+            }
+        }
+
+        function copyAssetLink(src) {
+            navigator.clipboard.writeText(src);
+            showToast("Asset address copied.");
+        }
+
+        function savePortalSettings(event) {
+            event.preventDefault();
+            const config = {
+                headline: document.getElementById('config-headline').value,
+                hotline: document.getElementById('config-hotline').value,
+                email: document.getElementById('config-email').value,
+                address: document.getElementById('config-address').value
+            };
+            localStorage.setItem('es_portal_configs', JSON.stringify(config));
+            showToast("Portal configurations synchronized.");
+        }
+
+        function switchTab(tabId, menuEl) {
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(`view-${tabId}`).classList.add('active');
+            menuEl.classList.add('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => { toast.classList.remove('active'); }, 3500);
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+    </script>
+</body>
+</html>
+```
